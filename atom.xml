@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://mainasuk.com/"/>
-  <updated>2015-12-25T06:47:21.000Z</updated>
+  <updated>2015-12-27T15:35:18.000Z</updated>
   <id>http://mainasuk.com/</id>
   
   <author>
@@ -19,10 +19,10 @@
     <link href="http://mainasuk.com/2015/12/25/Linux-assemble-and-Compute/"/>
     <id>http://mainasuk.com/2015/12/25/Linux-assemble-and-Compute/</id>
     <published>2015-12-25T02:30:00.000Z</published>
-    <updated>2015-12-25T06:47:21.000Z</updated>
+    <updated>2015-12-27T15:35:18.000Z</updated>
     <content type="html"><![CDATA[<p>说起来真的让人难以置信，我校汇编教材是老师自己写自己印的，拿到手的时候不由得想起高中在学校自己的印刷室里帮老师装订复习资料的场景……</p>
-<p>好吧，Windows 系统下 的 DEBUG 只能说是勉强够用。先在记事本里写好程序，之后一行行敲入 DEBUG 下，调试起来甚至会简单一些。更进一步，用 MASA 和 LINK 也可以直接将汇编源文件编译成可执行文件。不过这里我以 Linux 为基础，如果对汇编有兴趣，可以尝试着写几个有用的程序，比如说～嗯， <code>OA</code> 与 <code>OD OA</code> 间自由转换的转换器？</p>
-<p>&gt; 从字节层面看文本文件，Windows 操作系统以 OD OA（16进制）作为换行标记（End of Line，EOL），而 Linux 则以 OA 作为 EOL。于是，Linux 下编写的文本文件在 Windows 的记事本中会丢失换行符。乱码？噢，不不不，那是因为 Linux 以 Unicode 保存汉字，而 Windows 记事本以 GBK 编码去解析造成的，对于中文世界，情况大多如此。</p>
+<p>好吧，Windows 系统下 的 DEBUG 只能说是勉强够用。先在记事本里写好程序，之后一行行敲入 DEBUG 下，调试起来甚至会简单一些。更进一步，用 MASA 和 LINK 也可以直接将汇编源文件编译成可执行文件。不过这里我以 Linux 为基础，如果对汇编有兴趣，可以尝试着写几个有用的程序，比如说～嗯， <code>0A</code> 与 <code>0D 0A</code> 间自由转换的转换器？</p>
+<p>&gt; 从字节层面看文本文件，Windows 操作系统以 0D 0A（16进制）作为换行标记（End of Line，EOL），而 Linux 则以 0A 作为 EOL。于是，Linux 下编写的文本文件在 Windows 的记事本中会丢失换行符。乱码？噢，不不不，那是因为 Linux 以 Unicode 保存汉字，而 Windows 记事本以 GBK 编码去解析造成的，对于中文世界，情况大多如此。</p>
 <a id="more"></a>
 <h1 id="u73AF_u5883_u90E8_u7F72"><a href="#u73AF_u5883_u90E8_u7F72" class="headerlink" title="环境部署"></a>环境部署</h1><p>编写 Linux 汇编程序，首先需要一个你有一个基于 Intel CPU 的 Linux 系统。如果可以满足这点，恭喜，您已经达到基本的硬件要求了。这里我使用 Ubuntu 14.04 LTS 64 位发行版，它运行在一台超便宜的洋垃圾笔记本上:D</p>
 <h2 id="u5DE5_u5177_u94FE"><a href="#u5DE5_u5177_u94FE" class="headerlink" title="工具链"></a>工具链</h2><ul>
@@ -42,7 +42,7 @@
 <p>对地址 0x0100 进行寻址时，CPU 将地址缓存设置为 <code>0000 0001 0000 0000</code>，也就是将对应的存储芯片通低电压或高电压，啊，令人头大的晶体管。16 根地址线将选择信号加在芯片的选择器上，数字电路会给指定地址的存储单元通电，拿出这 1 个 bit 的数据，当 8 个芯片串在一起时，我们便得到了 8 bit (1 字节) 的数据。这个过程仅需要不可思议的几纳秒。</p>
 <p><img src="http://ww1.sinaimg.cn/large/72d7aee5gw1ezbonc1z5pj20sg0lcjsf.jpg" alt="RAM 芯片"></p>
 <p>得到机器指令后，CPU 执行出厂时烧录好的指令集中的一条，而汇编语言就是直接或间接操纵（从内存拿出）数据，命令 CPU 执行计算的语言。实际上汇编语言编译后的程序代码（机器指令）也是一些 0 和 1。说白了，计算机就是在 0 和 1 之间跳舞，数据和可执行代码并没有本质的区别（想出利用缓冲区溢出漏洞攻击的人简直是天才）。</p>
-<p>后来的 8086 有 20 根地址线，8 根数据线，可以在操纵 1MB 的内存（更准确的说，是 1MiB，但这里不再特意区分 MB 与 <a href="https://en.wikipedia.org/wiki/Mebibyte" target="_blank" rel="external">MiB</a>）。而今天，32 位 CPU 可以寻址 4GB 内存，64 位 CPU 的寻址大小为 2^64 = 16777216TB。当然，CPU 和内存的技术也在变化，目前内存（<a href="http://www.techbang.com/posts/18381-from-the-channel-to-address-computer-main-memory-structures-to-understand?page=1" target="_blank" rel="external">DIMM</a>）的存储单元堆叠在一起，存储单元的存储方式也不是按列存储。而多核 CPU 的出现以及多级缓存的应用使得在大脑中构建一个计算机运行的模型愈发困难，若实际去考量程序的执行效率，就不可避免的需要考虑到内存存取，缓存命中，内存一致性的诸多问题。考虑目前 CPU 的执行速度和内存存取的速度，尽量少的存取内存，并且提高缓存命中率（顺序存储／压缩数据）是提告程序效率的不错选择。</p>
+<p>后来的 8086 有 20 根地址线，8 根数据线，可以在操纵 1MB 的内存（更准确的说，是 1MiB，但这里不再特意区分 MB 与 <a href="https://en.wikipedia.org/wiki/Mebibyte" target="_blank" rel="external">MiB</a>）。而今天，32 位 CPU 可以寻址 4GB 内存，64 位 CPU 的寻址大小为 2^64 = 16777216TB。当然，CPU 和内存的技术也在变化，目前内存（<a href="http://www.techbang.com/posts/18381-from-the-channel-to-address-computer-main-memory-structures-to-understand?page=1" target="_blank" rel="external">DIMM</a>）的存储单元堆叠在一起，存储单元的存储方式也不是按列存储。而多核 CPU 的出现以及多级缓存的应用使得在大脑中构建一个计算机运行的模型愈发困难，若实际去考量程序的执行效率，就不可避免的需要考虑到内存存取，缓存命中，内存一致性的诸多问题。考虑目前 CPU 的执行速度和内存存取的速度，在 CPU 不是瓶颈的场景中做到尽量少的存取内存，并且提高缓存命中率（顺序存储／压缩数据），可有效提高程序效率。</p>
 <p>噢天啊～让生活简单一点吧，尽管访问内存的细节很复杂，但我们通常将它抽象成一个非常长的书架，一个物理地址对应着一个字节。不过一定要头脑清楚，除非你知道自己在做什么，否则不要试着在这个抽象层面上做任何‘优化’。</p>
 <h2 id="u6C47_u7F16_u7F16_u7A0B_u6A21_u578B"><a href="#u6C47_u7F16_u7F16_u7A0B_u6A21_u578B" class="headerlink" title="汇编编程模型"></a>汇编编程模型</h2><p>好像差不多了，不过再等一下。是的，如果你为 8 位的 Intel 8080 CPU 编写汇编程序，对 64K 内存直接寻址是可行的（实模式平面模型，real mode flat model）；若为 32位机编写程序，你也可以直接对 4GB 内存进行寻址（保护模式平面模型，protected mode flat model）。</p>
 <p>为 16 位 Intel 8086 编写程序呢？它和 8080 一样使用 16 位的地址缓存，但却有 20 条数据线，可对 1MB 内存进行寻址。如何用 16 位寄存器生成 20 位地址呢？答案是出乎意料的，CPU 使用两个 16 位寄存器来计算物理地址。将 1MB 的内存分成许多段（segment），段开始的地址就是段地址，它存储在段寄存器。任何能被 16 整除的地址都可以作为段地址，范围为 <code>0x0 – 0xFFFF</code>。将段地址乘 16 再加上另一个寄存器中存储的偏移地址，就得到了一个 20 位的物理地址，常常这样表示 0042:0042。（实模式段模型，real mode segmented model）</p>
@@ -57,17 +57,18 @@
 <p>对于 DOS 汇编，字符串输出服务编号为 09H，字符串以 $ 符号结束（0x24）。也就是说，汇编程序不能移植。特别的，由于内核不同，Linux 汇编程序不能运行在 BSD Unix 下。</p>
 <h2 id="u7F16_u8BD1_u8C03_u8BD5"><a href="#u7F16_u8BD1_u8C03_u8BD5" class="headerlink" title="编译调试"></a>编译调试</h2><p><img src="http://ww4.sinaimg.cn/large/72d7aee5gw1ezbna2jrtij20zk0m8dvm.jpg" alt="insight"></p>
 <p>使用 NASM 和 ld 完成源代码的编译链接，如果是 32 位机，ld 命令可省略 -m elf_i386。编译完成后，在终端运行程序，便会得到打印结果 “Hello, world!”。</p>
-<p>我们使用 insight 进行调试，可以看到程序的结构，内存由低到高排列，首先是 .text 段；其次是 .data 段；接下来是 .bss 段，尽管它是一个段，但在程序加载入内存后才会被分配空间，用来存放未初始化变量。通过 insight 可以观察到程序在内存中的分布；还可以看到编译得到的机器指令：MOV EAX 4 编译为 <code>0x00000004B8</code>，采用<a href="https://zh.wikipedia.org/wiki/字节序" target="_blank" rel="external">小端对齐</a>。这里我使用另一个字符串，可以看到它以 <code>0x0A</code>结尾，共 14 字节。</p>
+<p>我们使用 insight 进行调试，可以看到程序的结构，内存由低到高排列，首先是 .text 段；其次是 .data 段；接下来是 .bss 段，尽管它是一个段，但在程序加载入内存后才会被分配空间，用来存放未初始化变量。通过 insight 还可以看到编译得到的机器指令：MOV EAX 4 编译为 <code>0x00000004B8</code>，采用<a href="https://zh.wikipedia.org/wiki/字节序" target="_blank" rel="external">小端对齐</a>。这里我使用另一个字符串，可以看到它以 <code>0x0A</code>结尾，共 14 字节。</p>
 <p><img src="http://ww1.sinaimg.cn/large/72d7aee5gw1ezbpfdofzkj20sg0lcmxx.jpg" alt=""></p>
-<h2 id="u8BA1_u7B97"><a href="#u8BA1_u7B97" class="headerlink" title="计算"></a>计算</h2><p>对于计算有一个很有趣的论断，不知道计算机同不同意 :D</p>
+<h2 id="u8BA1_u7B97"><a href="#u8BA1_u7B97" class="headerlink" title="计算"></a>计算</h2><p>对于计算有一个很有趣的论断，不知道计算机同不同意。</p>
 <blockquote>
 <p>计算的目的是洞察事物本质，而不是获得数字<br>— Richard Hamming</p>
 </blockquote>
+<p>嘛～尽管这样说，恐怕很多事物的本质还是不能用计算去得到。有时候我也会去想象一个没有计算机的世界，是不是会更好呢。美丽的大自然？</p>
 ]]></content>
     <summary type="html">
     <![CDATA[<p>说起来真的让人难以置信，我校汇编教材是老师自己写自己印的，拿到手的时候不由得想起高中在学校自己的印刷室里帮老师装订复习资料的场景……</p>
-<p>好吧，Windows 系统下 的 DEBUG 只能说是勉强够用。先在记事本里写好程序，之后一行行敲入 DEBUG 下，调试起来甚至会简单一些。更进一步，用 MASA 和 LINK 也可以直接将汇编源文件编译成可执行文件。不过这里我以 Linux 为基础，如果对汇编有兴趣，可以尝试着写几个有用的程序，比如说～嗯， <code>OA</code> 与 <code>OD OA</code> 间自由转换的转换器？</p>
-<p>&gt; 从字节层面看文本文件，Windows 操作系统以 OD OA（16进制）作为换行标记（End of Line，EOL），而 Linux 则以 OA 作为 EOL。于是，Linux 下编写的文本文件在 Windows 的记事本中会丢失换行符。乱码？噢，不不不，那是因为 Linux 以 Unicode 保存汉字，而 Windows 记事本以 GBK 编码去解析造成的，对于中文世界，情况大多如此。</p>]]>
+<p>好吧，Windows 系统下 的 DEBUG 只能说是勉强够用。先在记事本里写好程序，之后一行行敲入 DEBUG 下，调试起来甚至会简单一些。更进一步，用 MASA 和 LINK 也可以直接将汇编源文件编译成可执行文件。不过这里我以 Linux 为基础，如果对汇编有兴趣，可以尝试着写几个有用的程序，比如说～嗯， <code>0A</code> 与 <code>0D 0A</code> 间自由转换的转换器？</p>
+<p>&gt; 从字节层面看文本文件，Windows 操作系统以 0D 0A（16进制）作为换行标记（End of Line，EOL），而 Linux 则以 0A 作为 EOL。于是，Linux 下编写的文本文件在 Windows 的记事本中会丢失换行符。乱码？噢，不不不，那是因为 Linux 以 Unicode 保存汉字，而 Windows 记事本以 GBK 编码去解析造成的，对于中文世界，情况大多如此。</p>]]>
     
     </summary>
     
