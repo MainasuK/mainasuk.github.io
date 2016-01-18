@@ -3,17 +3,23 @@
 <head>
   <meta charset="utf-8">
   
-  <title>Below the horizon</title>
+  <title>OpenGL 鼠标拾取漫谈 | Below the horizon</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Below the horizon">
-<meta property="og:url" content="http://mainasuk.com/index.html">
+  <meta name="description" content="OpenGL 有多种方法可以实现鼠标拾取物体，其中的两种方法比较常用。第一种通常被认为是标准的选择方法，它跟踪被被选中像素或包括其周围的一小片区域的所有对象，接下来具体介绍这种方法。第二种是选取一个颜色集，用互不相同的颜色绘制可以被选中的对象，通过检查选中点的颜色缓存的颜色来识别出选择对象。
+对象我们抽象的认为在 glBegin(…) 和 glEnd() 之间绘制的图形为一个对象，它存在于世界坐标">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OpenGL 鼠标拾取漫谈">
+<meta property="og:url" content="http://mainasuk.com/2016/01/18/OpenGLPicking/index.html">
 <meta property="og:site_name" content="Below the horizon">
-<meta property="og:description">
+<meta property="og:description" content="OpenGL 有多种方法可以实现鼠标拾取物体，其中的两种方法比较常用。第一种通常被认为是标准的选择方法，它跟踪被被选中像素或包括其周围的一小片区域的所有对象，接下来具体介绍这种方法。第二种是选取一个颜色集，用互不相同的颜色绘制可以被选中的对象，通过检查选中点的颜色缓存的颜色来识别出选择对象。
+对象我们抽象的认为在 glBegin(…) 和 glEnd() 之间绘制的图形为一个对象，它存在于世界坐标">
+<meta property="og:image" content="http://ww4.sinaimg.cn/large/72d7aee5jw1f03s38pq40j20sg0lcq3k.jpg">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/72d7aee5jw1f03ulq5kbfj20pc0keq6a.jpg">
+<meta property="og:updated_time" content="2016-01-18T11:28:47.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Below the horizon">
-<meta name="twitter:description">
+<meta name="twitter:title" content="OpenGL 鼠标拾取漫谈">
+<meta name="twitter:description" content="OpenGL 有多种方法可以实现鼠标拾取物体，其中的两种方法比较常用。第一种通常被认为是标准的选择方法，它跟踪被被选中像素或包括其周围的一小片区域的所有对象，接下来具体介绍这种方法。第二种是选取一个颜色集，用互不相同的颜色绘制可以被选中的对象，通过检查选中点的颜色缓存的颜色来识别出选择对象。
+对象我们抽象的认为在 glBegin(…) 和 glEnd() 之间绘制的图形为一个对象，它存在于世界坐标">
 <meta name="twitter:creator" content="@mainasuk">
   
     <link rel="alternative" href="/atom.xml" title="Below the horizon" type="application/atom+xml">
@@ -73,9 +79,7 @@ ga('send', 'pageview');
   </div>
 </header>
       <div class="outer">
-        <section id="main">
-  
-    <article id="post-OpenGLPicking" class="article article-type-post" itemscope itemprop="blogPost">
+        <section id="main"><article id="post-OpenGLPicking" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2016/01/18/OpenGLPicking/" class="article-date">
   <time datetime="2016-01-18T11:09:00.000Z" itemprop="datePublished">2016-01-18</time>
@@ -88,8 +92,8 @@ ga('send', 'pageview');
       <header class="article-header">
         
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/01/18/OpenGLPicking/">OpenGL 鼠标拾取漫谈</a>
+    <h1 class="article-title" itemprop="name">
+      OpenGL 鼠标拾取漫谈
     </h1>
   
 
@@ -133,104 +137,26 @@ ga('send', 'pageview');
     </footer>
   </div>
   
-</article>
-
-
+    
+<nav id="article-nav">
   
-    <article id="post-HypercubeVisualize" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2016/01/13/HypercubeVisualize/" class="article-date">
-  <time datetime="2016-01-13T08:36:00.000Z" itemprop="datePublished">2016-01-13</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/01/13/HypercubeVisualize/">可视化超立方体</a>
-    </h1>
+    <a href="/2016/01/13/HypercubeVisualize/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">可视化超立方体</div>
+    </a>
   
+</nav>
 
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>读过《思考的乐趣》的朋友一定还记得最后一章中那个令人匪夷所思的四维超立方体（<a href="https://zh.wikipedia.org/wiki/超方形">hypercube</a>），生活在三维世界中的我们居然也可以去想象更高维的空间，真是有趣。</p>
-<h1 id="u5EFA_u6A21"><a href="#u5EFA_u6A21" class="headerlink" title="建模"></a>建模</h1><p>可视化的第一步就是建模，类似于三维立方体，用四维坐标（x, y, z, w）表示超立方体的顶点。按照每增加一个维度，顶点数翻倍的规律来看，超立方体的顶点是立方体的两倍，即 16 个顶点。一种典型的超立方体的所有顶点可由下表列出。</p>
-        
-          <p class="article-more-link">
-            <a href="/2016/01/13/HypercubeVisualize/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://mainasuk.com/2016/01/13/HypercubeVisualize/" data-id="cijckxq930007ndmua5yrbuxw" class="article-share-link">Share</a>
-      
-        <a href="http://mainasuk.com/2016/01/13/HypercubeVisualize/#disqus_thread" class="article-comment-link">Comments</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Math/">Math</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/OpenGL/">OpenGL</a></li></ul>
-
-    </footer>
-  </div>
   
 </article>
 
 
-  
-    <article id="post-Linux-assemble-and-Compute" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2015/12/25/Linux-assemble-and-Compute/" class="article-date">
-  <time datetime="2015-12-25T02:30:00.000Z" itemprop="datePublished">2015-12-25</time>
-</a>
-    
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
   </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2015/12/25/Linux-assemble-and-Compute/">Linux 汇编初体验与计算的目的</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>说起来真的让人难以置信，我校汇编教材是老师自己写自己印的，拿到手的时候不由得想起高中在学校自己的印刷室里帮老师装订复习资料的场景……</p>
-<p>好吧，Windows 系统下 的 DEBUG 只能说是勉强够用。先在记事本里写好程序，之后一行行敲入 DEBUG 下，调试起来甚至会简单一些。更进一步，用 MASA 和 LINK 也可以直接将汇编源文件编译成可执行文件。不过这里我以 Linux 为基础，如果对汇编有兴趣，可以尝试着写几个有用的程序，比如说～嗯， <code>0A</code> 与 <code>0D 0A</code> 间自由转换的转换器？</p>
-<p>&gt; 从字节层面看文本文件，Windows 操作系统以 0D 0A（16进制）作为换行标记（End of Line，EOL），而 Linux 则以 0A 作为 EOL。于是，Linux 下编写的文本文件在 Windows 的记事本中会丢失换行符。乱码？噢，不不不，那是因为 Linux 以 Unicode 保存汉字，而 Windows 记事本以 GBK 编码去解析造成的，对于中文世界，情况大多如此。</p>
-        
-          <p class="article-more-link">
-            <a href="/2015/12/25/Linux-assemble-and-Compute/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://mainasuk.com/2015/12/25/Linux-assemble-and-Compute/" data-id="cijckxq8o0000ndmu3ylfr6ms" class="article-share-link">Share</a>
-      
-        <a href="http://mainasuk.com/2015/12/25/Linux-assemble-and-Compute/#disqus_thread" class="article-comment-link">Comments</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Linux/">Linux</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/汇编/">汇编</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/计算机/">计算机</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-  
+</section>
 </section>
         
           <aside id="sidebar">
@@ -311,11 +237,13 @@ ga('send', 'pageview');
 <script>
   var disqus_shortname = 'belowthehorizon';
   
+  var disqus_url = 'http://mainasuk.com/2016/01/18/OpenGLPicking/';
+  
   (function(){
     var dsq = document.createElement('script');
     dsq.type = 'text/javascript';
     dsq.async = true;
-    dsq.src = '//' + disqus_shortname + '.disqus.com/count.js';
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
     (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
   })();
 </script>
