@@ -75,6 +75,57 @@ ga('send', 'pageview');
       <div class="outer">
         <section id="main">
   
+    <article id="post-OpenGLTexture" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/01/21/OpenGLTexture/" class="article-date">
+  <time datetime="2016-01-21T07:58:00.000Z" itemprop="datePublished">2016-01-21</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/01/21/OpenGLTexture/">OpenGL 纹理漫谈</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="2D__u7EB9_u7406_u6620_u5C04"><a href="#2D__u7EB9_u7406_u6620_u5C04" class="headerlink" title="2D 纹理映射"></a>2D 纹理映射</h1><p>纹理映射一般是在图形的坐标值已经计算完成时附加在顶点信息上的，而非对纹理进行透视、变换再显示。下面逐步介绍如何在 OpenGL 中开启纹理映射，它的顺序有先后但并不唯一，若是想颠倒一下顺序也不妨试试看会有什么效果🙃️</p>
+<h2 id="u8BFB_u53D6_u7EB9_u7406_u56FE"><a href="#u8BFB_u53D6_u7EB9_u7406_u56FE" class="headerlink" title="读取纹理图"></a>读取纹理图</h2><p>纹理图的格式一般为原始 RGB 格式，一个字节（8 bits）代表一种颜色通道，一个像素的颜色用三个字节表示，例如白色记为 <code>#FFFFFF</code>，是不是很熟悉，这种表示方式即 RGB888，由或者称其为 24 位真彩色。除此之外还有一些其他常用的格式：RGBA8888，RGB565，RGBA5551……</p>
+<p>纹理图通常是正方形，若图形 API 没有严格限制，也可以为矩形。大多数图形卡及图形 API 为了效率的原因，限制图像分辨率为 2 的幂，例如 256*256，具体要求请参考文档。</p>
+<p><img src="http://ww4.sinaimg.cn/large/72d7aee5jw1f068lt6aaaj218v0qaqar.jpg" alt="Photoshop 导出原始 RGB 图像"></p>
+<p>这里我们使用 Photoshop 将图片裁剪成 512*512 分辨率，然后将其导出为原始 RGB 格式的图像，只要在存储时选择 Photoshop raw 格式即可（别和单反的那种 RAW 搞混了哦）。导出后的文件记录着自左上角向右下角逐行扫描的 RGB 信息。</p>
+<p><img src="http://ww2.sinaimg.cn/large/72d7aee5jw1f068pzyeqxj20te0itwm5.jpg" alt="查看 RAW 文件"></p>
+<p>使用十六进制文本查看器查看导出的文件，可以看到共 512*512*3 = 786432 字节，查看前三个字节组成的颜色 <code>#444135</code>，大致是深褐色。</p>
+        
+          <p class="article-more-link">
+            <a href="/2016/01/21/OpenGLTexture/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://mainasuk.com/2016/01/21/OpenGLTexture/" data-id="cijmya6nc0000i9muagbo9gnb" class="article-share-link">Share</a>
+      
+        <a href="http://mainasuk.com/2016/01/21/OpenGLTexture/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/OpenGL/">OpenGL</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-OpenGLPicking" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2016/01/18/OpenGLPicking/" class="article-date">
@@ -174,57 +225,6 @@ ga('send', 'pageview');
 
 
   
-    <article id="post-OpenGLTexture" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2016/01/02/OpenGLTexture/" class="article-date">
-  <time datetime="2016-01-02T07:58:00.000Z" itemprop="datePublished">2016-01-02</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/01/02/OpenGLTexture/">OpenGL 纹理漫谈</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="2D__u7EB9_u7406_u6620_u5C04"><a href="#2D__u7EB9_u7406_u6620_u5C04" class="headerlink" title="2D 纹理映射"></a>2D 纹理映射</h1><p>纹理映射一般是在图形的坐标值已经计算完成时附加在顶点信息上的，而非对纹理进行透视、变换再显示。下面逐步介绍如何在 OpenGL 中开启纹理映射，它的顺序有先后但并不唯一，若是想颠倒一下顺序也不妨试试看会有什么效果🙃️</p>
-<h2 id="u8BFB_u53D6_u7EB9_u7406_u56FE"><a href="#u8BFB_u53D6_u7EB9_u7406_u56FE" class="headerlink" title="读取纹理图"></a>读取纹理图</h2><p>纹理图的格式一般为原始 RGB 格式，一个字节（8 bits）代表一种颜色通道，一个像素的颜色用三个字节表示，例如白色记为 <code>#FFFFFF</code>，是不是很熟悉，这种表示方式即 RGB888，由或者称其为 24 位真彩色。除此之外还有一些其他常用的格式：RGBA8888，RGB565，RGBA5551……</p>
-<p>纹理图通常是正方形，若图形 API 没有严格限制，也可以为矩形。大多数图形卡及图形 API 为了效率的原因，限制图像分辨率为 2 的幂，例如 256*256，具体要求请参考文档。</p>
-<p><img src="http://ww4.sinaimg.cn/large/72d7aee5jw1f068lt6aaaj218v0qaqar.jpg" alt="Photoshop 导出原始 RGB 图像"></p>
-<p>这里我们使用 Photoshop 将图片裁剪成 512*512 分辨率，然后将其导出为原始 RGB 格式的图像，只要在存储时选择 Photoshop raw 格式即可（别和单反的那种 RAW 搞混了哦）。导出后的文件记录着自左上角向右下角逐行扫描的 RGB 信息。</p>
-<p><img src="http://ww2.sinaimg.cn/large/72d7aee5jw1f068pzyeqxj20te0itwm5.jpg" alt="查看 RAW 文件"></p>
-<p>使用十六进制文本查看器查看导出的文件，可以看到共 512*512*3 = 786432 字节，查看前三个字节组成的颜色 <code>#444135</code>，大致是深褐色。</p>
-        
-          <p class="article-more-link">
-            <a href="/2016/01/02/OpenGLTexture/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://mainasuk.com/2016/01/02/OpenGLTexture/" data-id="cijmya6nc0000i9muagbo9gnb" class="article-share-link">Share</a>
-      
-        <a href="http://mainasuk.com/2016/01/02/OpenGLTexture/#disqus_thread" class="article-comment-link">Comments</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/OpenGL/">OpenGL</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
     <article id="post-Linux-assemble-and-Compute" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2015/12/25/Linux-assemble-and-Compute/" class="article-date">
@@ -313,15 +313,15 @@ ga('send', 'pageview');
       <ul>
         
           <li>
+            <a href="/2016/01/21/OpenGLTexture/">OpenGL 纹理漫谈</a>
+          </li>
+        
+          <li>
             <a href="/2016/01/18/OpenGLPicking/">OpenGL 鼠标拾取漫谈</a>
           </li>
         
           <li>
             <a href="/2016/01/13/HypercubeVisualize/">可视化超立方体</a>
-          </li>
-        
-          <li>
-            <a href="/2016/01/02/OpenGLTexture/">OpenGL 纹理漫谈</a>
           </li>
         
           <li>
