@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>OpenGL 纹理漫谈 | Below the horizon</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="2D 纹理映射纹理映射一般是在图形的坐标值已经计算完成时附加在顶点信息上的，而非对纹理进行透视、变换再显示。下面逐步介绍如何在 OpenGL 中开启纹理映射，它的顺序有先后但并不唯一，若是想颠倒一下顺序也不妨试试看会有什么效果🙃️
+读取纹理图纹理图的格式一般为原始 RGB 格式，一个字节（8 bits）代表一种颜色通道，一个像素的颜色用三个字节表示，例如白色记为 #FFFFFF，是不是很熟悉，这">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OpenGL 纹理漫谈">
+<meta property="og:url" content="http://mainasuk.com/2016/01/02/OpenGLTexture/index.html">
+<meta property="og:site_name" content="Below the horizon">
+<meta property="og:description" content="2D 纹理映射纹理映射一般是在图形的坐标值已经计算完成时附加在顶点信息上的，而非对纹理进行透视、变换再显示。下面逐步介绍如何在 OpenGL 中开启纹理映射，它的顺序有先后但并不唯一，若是想颠倒一下顺序也不妨试试看会有什么效果🙃️
+读取纹理图纹理图的格式一般为原始 RGB 格式，一个字节（8 bits）代表一种颜色通道，一个像素的颜色用三个字节表示，例如白色记为 #FFFFFF，是不是很熟悉，这">
+<meta property="og:image" content="http://ww4.sinaimg.cn/large/72d7aee5jw1f068lt6aaaj218v0qaqar.jpg">
+<meta property="og:image" content="http://ww2.sinaimg.cn/large/72d7aee5jw1f068pzyeqxj20te0itwm5.jpg">
+<meta property="og:image" content="http://ww4.sinaimg.cn/large/72d7aee5jw1f071hi673yj20sg0lcafn.jpg">
+<meta property="og:image" content="http://ww3.sinaimg.cn/large/72d7aee5jw1f071lg3xjvj20sg0lc7aq.jpg">
+<meta property="og:image" content="http://ww2.sinaimg.cn/large/72d7aee5jw1f071mhcclsj20sg0lcwj8.jpg">
+<meta property="og:image" content="http://ww2.sinaimg.cn/large/72d7aee5jw1f071oplnt2j20sg0lcq6k.jpg">
+<meta property="og:image" content="http://ww2.sinaimg.cn/large/72d7aee5jw1f071xv88qvj218n0kegs5.jpg">
+<meta property="og:image" content="http://ww3.sinaimg.cn/large/72d7aee5jw1f075utlh0ij20x00ke0v0.jpg">
+<meta property="og:updated_time" content="2016-01-21T07:57:39.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="OpenGL 纹理漫谈">
+<meta name="twitter:description" content="2D 纹理映射纹理映射一般是在图形的坐标值已经计算完成时附加在顶点信息上的，而非对纹理进行透视、变换再显示。下面逐步介绍如何在 OpenGL 中开启纹理映射，它的顺序有先后但并不唯一，若是想颠倒一下顺序也不妨试试看会有什么效果🙃️
+读取纹理图纹理图的格式一般为原始 RGB 格式，一个字节（8 bits）代表一种颜色通道，一个像素的颜色用三个字节表示，例如白色记为 #FFFFFF，是不是很熟悉，这">
+<meta name="twitter:creator" content="@mainasuk">
+  
+    <link rel="alternative" href="/atom.xml" title="Below the horizon" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link href="//fonts.useso.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css" type="text/css">
+  
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-71683065-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+</head>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Below the horizon</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://mainasuk.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-OpenGLTexture" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/01/02/OpenGLTexture/" class="article-date">
+  <time datetime="2016-01-02T07:58:00.000Z" itemprop="datePublished">2016-01-02</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      OpenGL 纹理漫谈
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <!-- Table of Contents -->
+        
+          <div id="toc" class="toc-article">
+            <strong class="toc-title">文章目录</strong>
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#2D__u7EB9_u7406_u6620_u5C04"><span class="toc-number">1.</span> <span class="toc-text">2D 纹理映射</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#u8BFB_u53D6_u7EB9_u7406_u56FE"><span class="toc-number">1.1.</span> <span class="toc-text">读取纹理图</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u751F_u6210_u7EB9_u7406"><span class="toc-number">1.2.</span> <span class="toc-text">生成纹理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u8C03_u6574_u7EB9_u7406_u53C2_u6570"><span class="toc-number">1.3.</span> <span class="toc-text">调整纹理参数</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#u53CD_u5377"><span class="toc-number">1.3.1.</span> <span class="toc-text">反卷</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u8FC7_u6EE4"><span class="toc-number">1.3.2.</span> <span class="toc-text">过滤</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u5B9A_u4E49_u7EB9_u7406"><span class="toc-number">1.4.</span> <span class="toc-text">定义纹理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u5BF9_u591A_u8FB9_u5F62_u8FDB_u884C_u7EB9_u7406_u6620_u5C04"><span class="toc-number">1.5.</span> <span class="toc-text">对多边形进行纹理映射</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u8BBE_u7F6E_u7EB9_u7406_u73AF_u5883"><span class="toc-number">1.6.</span> <span class="toc-text">设置纹理环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u8BBE_u7F6E_u7EB9_u7406_u5750_u6807"><span class="toc-number">1.7.</span> <span class="toc-text">设置纹理坐标</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#1D__u7EB9_u7406_u6620_u5C04"><span class="toc-number">2.</span> <span class="toc-text">1D 纹理映射</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#u751F_u6210_u7EB9_u7406-1"><span class="toc-number">2.1.</span> <span class="toc-text">生成纹理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u5B9A_u4E49_u7EB9_u7406-1"><span class="toc-number">2.2.</span> <span class="toc-text">定义纹理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u751F_u6210_u7EB9_u7406-2"><span class="toc-number">2.3.</span> <span class="toc-text">生成纹理</span></a></li></ol></li></ol>
+          </div>
+        
+        <h1 id="2D__u7EB9_u7406_u6620_u5C04"><a href="#2D__u7EB9_u7406_u6620_u5C04" class="headerlink" title="2D 纹理映射"></a>2D 纹理映射</h1><p>纹理映射一般是在图形的坐标值已经计算完成时附加在顶点信息上的，而非对纹理进行透视、变换再显示。下面逐步介绍如何在 OpenGL 中开启纹理映射，它的顺序有先后但并不唯一，若是想颠倒一下顺序也不妨试试看会有什么效果🙃️</p>
+<h2 id="u8BFB_u53D6_u7EB9_u7406_u56FE"><a href="#u8BFB_u53D6_u7EB9_u7406_u56FE" class="headerlink" title="读取纹理图"></a>读取纹理图</h2><p>纹理图的格式一般为原始 RGB 格式，一个字节（8 bits）代表一种颜色通道，一个像素的颜色用三个字节表示，例如白色记为 <code>#FFFFFF</code>，是不是很熟悉，这种表示方式即 RGB888，由或者称其为 24 位真彩色。除此之外还有一些其他常用的格式：RGBA8888，RGB565，RGBA5551……</p>
+<p>纹理图通常是正方形，若图形 API 没有严格限制，也可以为矩形。大多数图形卡及图形 API 为了效率的原因，限制图像分辨率为 2 的幂，例如 256*256，具体要求请参考文档。</p>
+<p><img src="http://ww4.sinaimg.cn/large/72d7aee5jw1f068lt6aaaj218v0qaqar.jpg" alt="Photoshop 导出原始 RGB 图像"></p>
+<p>这里我们使用 Photoshop 将图片裁剪成 512*512 分辨率，然后将其导出为原始 RGB 格式的图像，只要在存储时选择 Photoshop raw 格式即可（别和单反的那种 RAW 搞混了哦）。导出后的文件记录着自左上角向右下角逐行扫描的 RGB 信息。</p>
+<p><img src="http://ww2.sinaimg.cn/large/72d7aee5jw1f068pzyeqxj20te0itwm5.jpg" alt="查看 RAW 文件"></p>
+<p>使用十六进制文本查看器查看导出的文件，可以看到共 512*512*3 = 786432 字节，查看前三个字节组成的颜色 <code>#444135</code>，大致是深褐色。</p>
+<a id="more"></a>
+<p>若在原始 RGB 文件头加入图像的高度和宽度信息，则类似于 <a href="https://en.wikipedia.org/wiki/Netpbm_format" target="_blank" rel="external">ppm</a> 格式。除此之外，纹理图还有压缩格式，比较著名的是 <a href="https://en.wikipedia.org/wiki/S3_Texture_Compression" target="_blank" rel="external">S3TC</a> 格式，它被大多数图形卡支持，它提高了内存读取效率，游戏引擎大多会用到这样的技术。</p>
+<p>读取原始 RGB 格式的图片是很简单的，一个简单的函数就可以完成这项工作。读取成功后，一个 GLubyte 类型的指针指向存储纹理图的地址，它的大小为 <code>width*height*3</code> 个 <code>unsigned char</code>，可以理解为一个三维数组<code>texImage[width][height][3]</code>。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">GLuint <span class="title">raw_texture_load</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span> *filename, <span class="keyword">int</span> width, <span class="keyword">int</span> height)</span> </span>&#123;</span><br><span class="line">    GLubyte *data;</span><br><span class="line">    FILE *infile;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//  Open texture data</span></span><br><span class="line">    infile = fopen(filename, <span class="string">"rb"</span>);</span><br><span class="line">    <span class="keyword">if</span> (<span class="literal">NULL</span> == infile) &#123;</span><br><span class="line">        <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"%s open failed.\n"</span>, filename);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//  Allocate buffer</span></span><br><span class="line">    data = (GLubyte*)<span class="built_in">malloc</span>(width * height * <span class="number">3</span>);</span><br><span class="line">    </span><br><span class="line">    fread(data, (width*height*<span class="number">3</span>), <span class="number">1</span>, infile);</span><br><span class="line">    fclose(infile);</span><br><span class="line">    …</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>除了从文件读取纹理图之外，还有其他方式获得纹理图，例如使用函数生成，或者直接将颜色缓冲区的内容读取出用作纹理。</p>
+<p>使用图像纹理图是很普遍的做法，OpenGL 也支持一些其他类型的纹理数据，比如<a href="https://www.opengl.org/discussion_boards/showthread.php/151701-GL_LUMINANCE-vs-GL_INTENSITY" target="_blank" rel="external">强度、明度</a>等，在制作地形效果时可以利用到。</p>
+<h2 id="u751F_u6210_u7EB9_u7406"><a href="#u751F_u6210_u7EB9_u7406" class="headerlink" title="生成纹理"></a>生成纹理</h2><p>将原始 RGB 信息保存到内存中只是第一步，接下来需要使用 API 来生成纹理。首先我们询问 API 获得纹理名称，使用得到的纹理名称与某种纹理类型进行绑定，之后调整纹理参数，最后将将纹理数据和纹理的元信息告诉 API，此时纹理便生成完毕，生成的纹理通过纹理名称来访问。</p>
+<p>纹理名称的获取与绑定一般代码如下。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">GLuint <span class="title">raw_texture_load</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span> *filename, <span class="keyword">int</span> width, <span class="keyword">int</span> height)</span> </span>&#123;</span><br><span class="line">    GLuint texture;</span><br><span class="line">    …</span><br><span class="line">    <span class="comment">//  Allocate a texture name</span></span><br><span class="line">    glGenTextures(<span class="number">1</span>, &amp;texture);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//  Select our current texture</span></span><br><span class="line">    glBindTexture(GL_TEXTURE_2D, texture);</span><br><span class="line">    …</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="u8C03_u6574_u7EB9_u7406_u53C2_u6570"><a href="#u8C03_u6574_u7EB9_u7406_u53C2_u6570" class="headerlink" title="调整纹理参数"></a>调整纹理参数</h2><p>OpenGL 提供了一系列的 GLenum 类型的参数，查看源码可以发现它是一些宏定义。这里我们通过调用函数 <code>glTexParameterf(GLenum target, GLenum pname, GLfloat param)</code> 进行纹理参数设置。纹理参数设置函数有多个系列，目前除了 <code>glTextureParameter</code> 系列函数只被 OpenGL 4.5 支持外，其余函数系列都是向后兼容的，具体信息请参考<a href="https://www.opengl.org/sdk/docs/man4/html/glTexParameter.xhtml" target="_blank" rel="external">文档</a>。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">GLuint <span class="title">raw_texture_load</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span> *filename, <span class="keyword">int</span> width, <span class="keyword">int</span> height)</span> </span>&#123;</span><br><span class="line">    …</span><br><span class="line">    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_CLAMP);</span><br><span class="line">    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_CLAMP);</span><br><span class="line">    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);</span><br><span class="line">    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);</span><br><span class="line">    …</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>函数的第一个参数为 target，我们根据纹理类型的不同选择调用不同的宏。纹理类型是指颜色信息存在的维度。一般来说我们使用 2D 纹理，某些场合下可以用到 1D 或 3D 纹理，</p>
+<p>后面两个参数需要搭配在一起使用，这里我们主要关心两种搭配，反卷与过滤。如上所说，纹理映射的方式并不是简单的透视变换，而是将纹理信息附加在计算好的多边形的顶点信息上。纹理图的坐标范围为 [0, 1]，反卷指当纹理坐标超出这个范围如何处理；过滤则涉及到纹理图的映射方法。</p>
+<h3 id="u53CD_u5377"><a href="#u53CD_u5377" class="headerlink" title="反卷"></a>反卷</h3><p><img src="http://ww4.sinaimg.cn/large/72d7aee5jw1f071hi673yj20sg0lcafn.jpg" alt="UV 坐标系"></p>
+<p>出现反卷纹理的情况是由于纹理坐标值不一定在 [0…1] 之间，与纹理数据所不同，纹理空间的坐标是典型的笛卡尔坐标系，原点在左下角。这与 Direct X 所不同（原点在左上角）。纹理坐标值以 (u, v) 表示，有人称其为 UV 坐标系。OpenGL 将纹理的第一二三及齐次坐标定义为 GL_S、GL_T、GL_R、GL_Q。调用 <code>glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_CLAMP)</code> 就完成单独指定 u 方向的反卷方式为 <code>GL_CLAMP</code>。</p>
+<p><img src="http://ww3.sinaimg.cn/large/72d7aee5jw1f071lg3xjvj20sg0lc7aq.jpg" alt="Wrap 方式"></p>
+<h3 id="u8FC7_u6EE4"><a href="#u8FC7_u6EE4" class="headerlink" title="过滤"></a>过滤</h3><p>在纹理映射的过程中，当纹理图的每个像素都恰好映射到屏幕上的每个像素时，纹理图是清晰的。当纹理图不能恰好映射的时候，就会出现插值的问题。先考虑纹理图映射到比自身分辨率大的屏幕上，这时纹理密度小于 1，每个纹元对应多个像素，若是使用简单的映射方法，将会出现块状纹理。OpenGL 提供了放大过滤器，用户可以选择过滤器的技术。同样，若纹理密度大于 1 也会出现多个纹元对应一个像素的问题，类似的技术和方法可以将其解决。</p>
+<p>游戏引擎中经常要渲染大量纹理，为了避免因纹理密度导致的问题，提出了多纹理技术（<a href="https://en.wikipedia.org/wiki/Mipmap" target="_blank" rel="external">MIP</a>）。当进行纹理映射时，图形 API 选择合适分辨率的纹理，从而提升性能和质量。MIP 技术也可以有效解决倾斜表面的纹理渲染问题，一些常用的纹理滤波技术可以参考<a href="https://zh.wikipedia.org/wiki/%E7%BA%B9%E7%90%86%E6%BB%A4%E6%B3%A2" target="_blank" rel="external">百科</a>，游戏玩家对于这些名词是熟悉的。</p>
+<p>下面以最临近插值和线性插值做对比，可以观察出细微的不同。</p>
+<p><img src="http://ww2.sinaimg.cn/large/72d7aee5jw1f071mhcclsj20sg0lcwj8.jpg" alt="GL_NEAREST"></p>
+<p><img src="http://ww2.sinaimg.cn/large/72d7aee5jw1f071oplnt2j20sg0lcq6k.jpg" alt="GL_LINAR"></p>
+<h2 id="u5B9A_u4E49_u7EB9_u7406"><a href="#u5B9A_u4E49_u7EB9_u7406" class="headerlink" title="定义纹理"></a>定义纹理</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">GLuint <span class="title">raw_texture_load</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span> *filename, <span class="keyword">int</span> width, <span class="keyword">int</span> height)</span> </span>&#123;</span><br><span class="line">    …</span><br><span class="line">    glTexImage2D(GL_TEXTURE_2D, <span class="number">0</span>, GL_RGB8, width, height, <span class="number">0</span>, GL_RGB, GL_UNSIGNED_BYTE, data);</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">free</span>(data);</span><br><span class="line">    <span class="keyword">return</span> texture;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>用户使用 <code>gllTexImage2D(GLenum target, GLint level, GLint internal format, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid *pixels)</code> 函数传递纹理数据指针 <code>pixels</code> 和纹理元数据，与之前用户调用 <code>glBindTexture</code> 声明的纹理进行关联。完成这一步之后，接下来就可以通过纹理名称来访问这个纹理。</p>
+<p>函数的参数含义如下：</p>
+<ul>
+<li>target: 纹理类型</li>
+<li>level: MIP 层次</li>
+<li>internal format: 有人也称其为 Dest，指这里定义纹理的格式</li>
+<li>width / height: 纹理图的宽度和高度，OpenGL 的实现可以保证支持到 1024 像素宽和高。1D 纹理图的高度为 1，不需要设置。</li>
+<li>border: 是否包含边界，1 为是，0 为否。文档指出此值必须为 0 （该参数已废弃，但仍需传值）。</li>
+<li>format: 有人称 Source，指纹理数据的格式。</li>
+<li>type: 纹理数据的数据类型，例如 <code>GL_UNSIGNED_BYTE</code>。</li>
+<li>pixels: 纹理数据指针。</li>
+</ul>
+<p>简单来讲，这个函数将用户的纹理数据定义为纹理，供 OpenGL 使用。</p>
+<h2 id="u5BF9_u591A_u8FB9_u5F62_u8FDB_u884C_u7EB9_u7406_u6620_u5C04"><a href="#u5BF9_u591A_u8FB9_u5F62_u8FDB_u884C_u7EB9_u7406_u6620_u5C04" class="headerlink" title="对多边形进行纹理映射"></a>对多边形进行纹理映射</h2><p>纹理坐标可以直接设置，也可以通过参数生成，这里先介绍第一种方法。</p>
+<p>在绘制多边形之前，使用 <code>glEnable</code> 开启纹理映射，接下来使用 <code>glTexEnvi</code> 设置纹理环境（值得注意的是该调用环境会影响到该语句之后的所有纹理映射），并传入纹理名称到 <code>glBindTexture</code> 完成纹理映射准备。</p>
+<p>代码如下，在下面进行介绍。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">glEnable(GL_TEXTURE_2D);</span><br><span class="line">glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);</span><br><span class="line">glBindTexture(GL_TEXTURE_2D, texName[<span class="number">0</span>]);</span><br><span class="line">glBegin(GL_QUADS);</span><br><span class="line">glNormal3f(<span class="number">0.0</span>, <span class="number">1.0</span>, <span class="number">0.0</span>);</span><br><span class="line">glTexCoord2f( <span class="number">0.0</span>,  <span class="number">0.0</span>); glVertex3fv(plane[<span class="number">0</span>]);</span><br><span class="line">glTexCoord2f( <span class="number">0.0</span>,  <span class="number">1.0</span>); glVertex3fv(plane[<span class="number">1</span>]);</span><br><span class="line">glTexCoord2f( <span class="number">1.0</span>,  <span class="number">1.0</span>); glVertex3fv(plane[<span class="number">2</span>]);</span><br><span class="line">glTexCoord2f( <span class="number">1.0</span>,  <span class="number">0.0</span>); glVertex3fv(plane[<span class="number">3</span>]);</span><br><span class="line">glEnd();</span><br><span class="line">glFlush();</span><br><span class="line">glDisable(GL_TEXTURE_2D);</span><br></pre></td></tr></table></figure>
+<h2 id="u8BBE_u7F6E_u7EB9_u7406_u73AF_u5883"><a href="#u8BBE_u7F6E_u7EB9_u7406_u73AF_u5883" class="headerlink" title="设置纹理环境"></a>设置纹理环境</h2><p>调用 <code>glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE)</code> 设置纹理环境，其中 <code>GL_MODULATE</code> 是纹理环境的默认方法，其余方法有 <code>GL_BLEND</code>、<code>GL_DECAL</code>、<code>GL_REPLACE</code>。用户可以在这项模式中切换。这些参数的含义与纹理数据与物体表面颜色之间混合的方式有关，关于这些技术具体的实现和作用，请参考<a href="http://docs.gl/gl3/glTexEnv" target="_blank" rel="external">文档</a>。</p>
+<h2 id="u8BBE_u7F6E_u7EB9_u7406_u5750_u6807"><a href="#u8BBE_u7F6E_u7EB9_u7406_u5750_u6807" class="headerlink" title="设置纹理坐标"></a>设置纹理坐标</h2><p>在绘制前设置法向量，它决定了纹理的方向。绘制顶点时调用 <code>glTexCoord2f(u, v)</code> 即可完成纹理坐标与多边形坐标的绑定，这里 <code>(u, v)</code> 可以超出 [0…1] 的限制，此时纹理的行为由纹理反卷方式决定。在渲染过程中，系统将根据顶点中纹理坐标的信息进行纹理映射。</p>
+<p><img src="http://ww2.sinaimg.cn/large/72d7aee5jw1f071xv88qvj218n0kegs5.jpg" alt="多个纹理"></p>
+<p>我们可以生成多个纹理，通过不同的纹理名称重复地对多边形进行映射，这与 MIP 类似但不同。</p>
+<h1 id="1D__u7EB9_u7406_u6620_u5C04"><a href="#1D__u7EB9_u7406_u6620_u5C04" class="headerlink" title="1D 纹理映射"></a>1D 纹理映射</h1><p><img src="http://ww3.sinaimg.cn/large/72d7aee5jw1f075utlh0ij20x00ke0v0.jpg" alt="ChromaDepth"></p>
+<p>接下来我们使用函数生成 1D 纹理，再使用生成纹理坐标的方法将其渲染到模型上，这里我们使用一种称为 <a href="https://en.wikipedia.org/wiki/ChromaDepth" target="_blank" rel="external">ChromaDepth</a> 的 3D 技术（在地形显示方面也有所应用)。这是一种比较古老的虚拟 3D 技术，只要有对应的眼镜就可以看到类似 3D 物体的效果。要找个类比的话，大概就是红蓝 3D 吧。近处物体渲染为红色，远处物体渲染为蓝色，通过眼镜观看，由于眼镜的衍射率不同，红色大于蓝色，人眼会认为衍射率大的红色比蓝色近，从而产生 3D 视觉效果。</p>
+<p>我们只要定义 1D 的纹理，再通过 <code>glTexGeni</code> 函数将纹理坐标自动生成出来就可以了。</p>
+<h2 id="u751F_u6210_u7EB9_u7406-1"><a href="#u751F_u6210_u7EB9_u7406-1" class="headerlink" title="生成纹理"></a>生成纹理</h2><p>使用 RGB 色彩空间创建从红到蓝的渐变并不方便，我们使用 <a href="https://zh.wikipedia.org/wiki/HSL%E5%92%8CHSV%E8%89%B2%E5%BD%A9%E7%A9%BA%E9%97%B4" target="_blank" rel="external">HSV 色彩空间</a>，喜欢数码绘图的朋友一定会很熟悉 HSV 拾色器。设置饱和度（S）和亮度（V）都为 1，将色度（H）由 0 度（红色）变换到 240 度（蓝色）。将这一变化序列转化为 RGB 存储并生成 1D 纹理。这里不再介绍如何 RGB 与 HSV 的转换。创建纹理数据的一般代码如下。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">makeRamp</span><span class="params">(<span class="keyword">void</span>)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> i;</span><br><span class="line">    <span class="keyword">float</span> h, s, v, r, g, b;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//  0 to 240 ramp, total 256 steps</span></span><br><span class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; <span class="number">256</span>; i++) &#123;</span><br><span class="line">        h = (<span class="keyword">float</span>)i * <span class="number">240.0</span> / <span class="number">255.0</span>;</span><br><span class="line">        s = <span class="number">1.0</span>;</span><br><span class="line">        v = <span class="number">1.0</span>;</span><br><span class="line">        convertHSV2RGB(h, s, v, &amp;r, &amp;g, &amp;b);</span><br><span class="line">        ramp[i][<span class="number">0</span>] = r;</span><br><span class="line">        ramp[i][<span class="number">1</span>] = g;</span><br><span class="line">        ramp[i][<span class="number">2</span>] = b;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="u5B9A_u4E49_u7EB9_u7406-1"><a href="#u5B9A_u4E49_u7EB9_u7406-1" class="headerlink" title="定义纹理"></a>定义纹理</h2><p>这里我们的到了一个长度为 256 的 1D 纹理数据。与 2D 纹理定义类似，接下来开启 1D 纹理映射，调整纹理参数，定义一个 1D 纹理。在开启 1D 纹理映射之后，我们调用 <code>glEnable(GL_TEXTURE_GEN_S)</code> 开启纹理 S 方向上的坐标生成。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">glEnable(GL_TEXTURE_1D);</span><br><span class="line">glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);</span><br><span class="line">glTexParameterf(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP);</span><br><span class="line">glTexParameterf(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);</span><br><span class="line">glTexParameterf(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);</span><br><span class="line">glTexImage1D(GL_TEXTURE_1D, <span class="number">0</span>, GL_RGB8, <span class="number">256</span>, <span class="number">0</span>, GL_RGB, GL_FLOAT, ramp);</span><br></pre></td></tr></table></figure>
+<h2 id="u751F_u6210_u7EB9_u7406-2"><a href="#u751F_u6210_u7EB9_u7406-2" class="headerlink" title="生成纹理"></a>生成纹理</h2><p>我们使用眼空间来生成纹理，函数调用的顺序不唯一，但要确保 <code>glTexGenfv</code> 在 <code>gluLookAt</code> 之前调用，代码如下。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">D1 = <span class="number">5.0</span>;</span><br><span class="line">D2 = <span class="number">15.0</span>;</span><br><span class="line">texParms[<span class="number">0</span>] = texParms[<span class="number">1</span>] = <span class="number">0.0</span>;</span><br><span class="line">texParms[<span class="number">2</span>] = -<span class="number">1.0</span> / (D2-D1);</span><br><span class="line">texParms[<span class="number">3</span>] = -D1/(D2-D1);</span><br><span class="line"></span><br><span class="line">glEnable(GL_TEXTURE_1D);</span><br><span class="line">glTexGenfv(GL_S, GL_EYE_PLANE, texParms);</span><br><span class="line">glBindTexture(GL_TEXTURE_1D, texName);</span><br><span class="line">glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);</span><br><span class="line"></span><br><span class="line"><span class="comment">//          eye point   center of view      up</span></span><br><span class="line">gluLookAt(camX, camY, camZ, <span class="number">0.0</span>, <span class="number">0.0</span>, <span class="number">0.0</span>, <span class="number">0.0</span>, <span class="number">1.0</span>, <span class="number">0.0</span>);</span><br><span class="line"></span><br><span class="line">glutSolidTeapot(<span class="number">5.0</span>);</span><br><span class="line">glDisable(GL_TEXTURE_1D);</span><br></pre></td></tr></table></figure>
+<p>前 5 行代码设置了四元数组，将其记作 A B C D。</p>
+<p>在眼坐标空间中生产纹理坐标时，系统在纹理坐标 S 方向进行这样的计算：<code>s = A*x + B*y + C*z + D</code>，OpenGL 的眼坐标空间向场景远处的方向为 +z 方向，将 A 和 B 设置为 0，即 x、y 方向不影响纹理坐标，只有 z 方向影响。观察 C 和 D 的计算方式，它是一个一元一次方程，斜率小于 1，s 值随着 z 的减小而增大。有点晕……冷静一下，OpenGL 的眼坐标系为左手坐标系，(0, 0, -1) 指向目标点，于是随着 z 值增大，茶壶的颜色也就越发蓝。</p>
+<p>相关资料：</p>
+<ul>
+<li><a href="https://open.gl/textures" target="_blank" rel="external">Textures objects and parameters</a></li>
+<li><a href="https://en.wikibooks.org/wiki/OpenGL_Programming/Intermediate/Textures" target="_blank" rel="external">OpenGL Programming/Intermediate/Textures</a></li>
+<li><a href="http://www.opengl-tutorial.org/cn/beginners-tutorials/tutorial-5-a-textured-cube/" target="_blank" rel="external">OpenGL tutorial 第五课：带纹理的立方体</a></li>
+<li><a href="https://www.opengl.org/sdk/docs/man2/xhtml/gluBuild2DMipmaps.xml" target="_blank" rel="external">gluBuild2DMipmaps — builds a two-dimensional mipmap</a></li>
+<li><a href="http://www.cnitblog.com/linghuye/archive/2005/08/13/1856.aspx" target="_blank" rel="external">OpenGL多重纹理使用与理解</a></li>
+<li><a href="http://marina.sys.wakayama-u.ac.jp/~tokoi/?date=20040914" target="_blank" rel="external">第２回 テクスチャの割り当て</a></li>
+<li><a href="http://marina.sys.wakayama-u.ac.jp/~tokoi/?date=20040917" target="_blank" rel="external">第５回 テクスチャ座標</a></li>
+<li><a href="http://marina.sys.wakayama-u.ac.jp/~tokoi/?date=20040212" target="_blank" rel="external">とっても簡単なマルチテクスチャのサンプル</a></li>
+<li><a href="https://www.opengl.org/archives/resources/faq/technical/texture.htm" target="_blank" rel="external">OpenGl FAQ - Texture Mapping</a></li>
+<li><a href="http://www.glprogramming.com/red/chapter09.html" target="_blank" rel="external">OpenGL Programming Guide Chapter 9 - Texture Mapping</a></li>
+<li><a href="http://duriansoftware.com/joe/An-intro-to-modern-OpenGL.-Chapter-2.1:-Buffers-and-Textures.html" target="_blank" rel="external">An intro to modern OpenGL. Chapter 2.1: Buffers and Textures</a></li>
+<li><a href="https://www.cs.umd.edu/users/mount/427/OpenGL/ogl_ref/node14.html" target="_blank" rel="external">Texture Mapping</a></li>
+<li><a href="http://my.oschina.net/sweetdark/blog/176407#OSC_h4_1" target="_blank" rel="external">OpenGL超级宝典笔记——纹理映射（二）</a></li>
+<li><a href="http://www.cs.uregina.ca/Links/class-info/405/WWW/Lab5/moreontexturemap.html" target="_blank" rel="external">More Info on Texture Mapping</a></li>
+<li><a href="http://www.3dgep.com/texturing-and-lighting-with-opengl-and-glsl/" target="_blank" rel="external">Texturing and Lighting with OpenGL and GLSL</a></li>
+<li><a href="http://marina.sys.wakayama-u.ac.jp/~tokoi/?date=20041228" target="_blank" rel="external">第７回 テクスチャ座標の自動生成</a></li>
+<li><a href="http://web.engr.oregonstate.edu/~mjb/chromadepth/chromapaper.pdf" target="_blank" rel="external">Using ChromaDepth to obtain Inexpensive Single-image Stereovision for Scientific Visualization</a></li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://mainasuk.com/2016/01/02/OpenGLTexture/" data-id="cijmya6nc0000i9muagbo9gnb" class="article-share-link">Share</a>
+      
+        <a href="http://mainasuk.com/2016/01/02/OpenGLTexture/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/OpenGL/">OpenGL</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2016/01/13/HypercubeVisualize/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          可视化超立方体
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2015/12/25/Linux-assemble-and-Compute/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Linux 汇编初体验与计算的目的</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Math/">Math</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OpenGL/">OpenGL</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/汇编/">汇编</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/计算机/">计算机</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Linux/" style="font-size: 10px;">Linux</a> <a href="/tags/Math/" style="font-size: 10px;">Math</a> <a href="/tags/OpenGL/" style="font-size: 20px;">OpenGL</a> <a href="/tags/汇编/" style="font-size: 10px;">汇编</a> <a href="/tags/计算机/" style="font-size: 10px;">计算机</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">一月 2016</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">十二月 2015</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recents</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2016/01/18/OpenGLPicking/">OpenGL 鼠标拾取漫谈</a>
+          </li>
+        
+          <li>
+            <a href="/2016/01/13/HypercubeVisualize/">可视化超立方体</a>
+          </li>
+        
+          <li>
+            <a href="/2016/01/02/OpenGLTexture/">OpenGL 纹理漫谈</a>
+          </li>
+        
+          <li>
+            <a href="/2015/12/25/Linux-assemble-and-Compute/">Linux 汇编初体验与计算的目的</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2016 MainasuK<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+<script>
+  var disqus_shortname = 'belowthehorizon';
+  
+  var disqus_url = 'http://mainasuk.com/2016/01/02/OpenGLTexture/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="//ajax.useso.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css" type="text/css">
+  <script src="/fancybox/jquery.fancybox.pack.js" type="text/javascript"></script>
+
+
+<script src="/js/script.js" type="text/javascript"></script>
+
+  </div>
+</body>
+</html>
