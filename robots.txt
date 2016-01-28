@@ -1,2 +1,5 @@
-User-agent: BaiduSpider
-Disallow:/
+User-agent: *
+
+Disallow: /pic/
+Disallow: /img/
+Disallow: /js/
