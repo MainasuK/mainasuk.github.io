@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>轻量 View Controller 实践 | Below the horizon</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="MVC 是 iOS 应用开发时常用的一种架构，使用这种架构的目的之一便是为了写出后期可维护的代码。去年我使用 Swift 1.2 编写了我的第一个 iOS 应用，我称它为 Percolator，其中包含了我对 MVC 初步实践。由于自己初学应用开发与设计，在后期维护时发现程序整体结构过于耦合，有些地方违反了 MVC 的设计要求，并且滥用单例，也没有考虑到循环引用等等问题。今年夏天 Xcode8 b">
+<meta property="og:type" content="article">
+<meta property="og:title" content="轻量 View Controller 实践">
+<meta property="og:url" content="http://mainasuk.com/2016/07/28/LightController/index.html">
+<meta property="og:site_name" content="Below the horizon">
+<meta property="og:description" content="MVC 是 iOS 应用开发时常用的一种架构，使用这种架构的目的之一便是为了写出后期可维护的代码。去年我使用 Swift 1.2 编写了我的第一个 iOS 应用，我称它为 Percolator，其中包含了我对 MVC 初步实践。由于自己初学应用开发与设计，在后期维护时发现程序整体结构过于耦合，有些地方违反了 MVC 的设计要求，并且滥用单例，也没有考虑到循环引用等等问题。今年夏天 Xcode8 b">
+<meta property="og:image" content="http://ww4.sinaimg.cn/large/72d7aee5jw1f69dgq4x64j20e20fpjs6.jpg">
+<meta property="og:updated_time" content="2016-07-28T03:15:16.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="轻量 View Controller 实践">
+<meta name="twitter:description" content="MVC 是 iOS 应用开发时常用的一种架构，使用这种架构的目的之一便是为了写出后期可维护的代码。去年我使用 Swift 1.2 编写了我的第一个 iOS 应用，我称它为 Percolator，其中包含了我对 MVC 初步实践。由于自己初学应用开发与设计，在后期维护时发现程序整体结构过于耦合，有些地方违反了 MVC 的设计要求，并且滥用单例，也没有考虑到循环引用等等问题。今年夏天 Xcode8 b">
+<meta name="twitter:creator" content="@mainasuk">
+  
+    <link rel="alternative" href="/atom.xml" title="Below the horizon" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link href="//fonts.useso.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css" type="text/css">
+  
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-71683065-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+</head>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Below the horizon</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://mainasuk.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-LightController" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/07/28/LightController/" class="article-date">
+  <time datetime="2016-07-28T04:00:00.000Z" itemprop="datePublished">2016-07-28</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      轻量 View Controller 实践
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <!-- Table of Contents -->
+        
+          <div id="toc" class="toc-article">
+            <strong class="toc-title">文章目录</strong>
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#u8F7B_u91CF_u5316_u7684_View_Controller"><span class="toc-number">1.</span> <span class="toc-text">轻量化的 View Controller</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#u5206_u79BB_Data_Source"><span class="toc-number">1.1.</span> <span class="toc-text">分离 Data Source</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u5B9E_u73B0_Model"><span class="toc-number">1.2.</span> <span class="toc-text">实现 Model</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u5355_u5143_u6D4B_u8BD5"><span class="toc-number">1.3.</span> <span class="toc-text">单元测试</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u5904_u7406_View__u4E0E_View_Controller__u5173_u7CFB"><span class="toc-number">1.4.</span> <span class="toc-text">处理 View 与 View Controller 关系</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#TableView__u5185_u591A_u79CD_Section__u7684_u5904_u7406"><span class="toc-number">1.5.</span> <span class="toc-text">TableView 内多种 Section 的处理</span></a></li></ol></li></ol>
+          </div>
+        
+        <p>MVC 是 iOS 应用开发时常用的一种架构，使用这种架构的目的之一便是为了写出后期可维护的代码。去年我使用 Swift 1.2 编写了我的第一个 iOS 应用，我称它为 Percolator，其中包含了我对 MVC 初步实践。由于自己初学应用开发与设计，在后期维护时发现程序整体结构过于耦合，有些地方违反了 MVC 的设计要求，并且滥用单例，也没有考虑到循环引用等等问题。今年夏天 Xcode8 beta + Swift3.0 beta 放出，利用假期这段时间完成了 Percolator 的重构，这篇手记记录了设计良好架构的一些实践，由于水平有限，若有不正确的地方还望批评指正。</p>
+<h1 id="u8F7B_u91CF_u5316_u7684_View_Controller"><a href="#u8F7B_u91CF_u5316_u7684_View_Controller" class="headerlink" title="轻量化的 View Controller"></a>轻量化的 View Controller</h1><h2 id="u5206_u79BB_Data_Source"><a href="#u5206_u79BB_Data_Source" class="headerlink" title="分离 Data Source"></a>分离 Data Source</h2><p>著名博客 objc.io 的第一篇期刊中介绍了如何对 View Controller 进行瘦身，提出了将 <code>UITableView</code> 或 <code>UICollectionView</code> 的 Data Source 部分从 View Controller 中单独分离出去的实践，并且提供了<a href="https://github.com/objcio/issue-1-lighter-view-controllers" target="_blank" rel="external">示例代码</a>。不过示例代码非常简单，需要进一步阐述清楚这个概念。</p>
+<p>在 Percolator 进行重构时我反复测试，最终得出了一种遵循此概念且易于实现和扩展的结构： </p>
+<p><img src="http://ww4.sinaimg.cn/large/72d7aee5jw1f69dgq4x64j20e20fpjs6.jpg" alt="分离 Data Source"></p>
+<p>箭尾对象拥有箭头所指对象，实线为强引用，虚线为弱引用，Controller 强引用 DataSource 与 Model 实例，这里没有画出。在实现时，我们将 Model 实现一个自定 DataProvider 协议，代码如下：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">protocol</span> <span class="title">DataProvider</span>: <span class="title">class</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">    associatedtype <span class="type">ItemType</span></span><br><span class="line">    </span><br><span class="line">    <span class="func"><span class="keyword">func</span> <span class="title">numberOfSections</span><span class="params">()</span></span> -&gt; <span class="type">Int</span></span><br><span class="line">    <span class="func"><span class="keyword">func</span> <span class="title">numberOfItems</span><span class="params">(<span class="keyword">in</span> section: Int)</span></span> -&gt; <span class="type">Int</span></span><br><span class="line">    </span><br><span class="line">    <span class="func"><span class="keyword">func</span> <span class="title">item</span><span class="params">(at indexPath: IndexPath)</span></span> -&gt; <span class="type">ItemType</span></span><br><span class="line">    <span class="func"><span class="keyword">func</span> <span class="title">identifier</span><span class="params">(at indexPath: IndexPath)</span></span> -&gt; <span class="type">String</span></span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>之后我们创建一个支援泛型的类 TableViewDataSource（一个包含成员 model 的自定类 DataSource 的子类），并利用 DataProvider 所提供的方法实现 <code>UITableViewDataSource</code> 协议，其头部声明如下：<br><a id="more"></a></p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TableViewDataSource</span>&lt;<span class="title">Model</span>: <span class="title">DataProvider</span>, <span class="title">Cell</span>: <span class="title">ConfigurableCell</span> <span class="title">where</span> <span class="title">Model</span>.<span class="title">ItemType</span> == <span class="title">Cell</span>.<span class="title">ItemType</span>, <span class="title">Cell</span>: <span class="title">UITableViewCell</span>&gt;: <span class="title">DataSource</span>&lt;<span class="title">Model</span>&gt;, <span class="title">UITableViewDataSource</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>此时我们将 DataSource 与其管理的数据进行了分离。我们从 DataProvider 内获得数据的数量，调用 <code>identifier(at:)</code> 方法获得重用标志符，调用 <code>item(at:)</code> 获得初始化 Cell 所需数据。Cell 是一个实现了自定协议 ConfigurableCell 的 UITableViewCell 子类，协议规定了一个 <code>configure(with item: ItemType)</code> 方法。这里利用到了 Swift 语言的关联类型的特性，即协议中的具体类型在实现该协议时给出。</p>
+<p>在实例化 TableViewDataSource 时，我们将一个实现了 DataProvider 协议的 Model 传入，赋给成员变量 model，并且明确泛型 Cell 的具体类型，Model 的关联类型与 ConfigurableCell 的关联类型由 TableViewDataSource 中泛型声明的 where 子句来判断并保持一致，若其中的一方关联类型变动，代码将无法通过编译，确保类型安全。</p>
+<h2 id="u5B9E_u73B0_Model"><a href="#u5B9E_u73B0_Model" class="headerlink" title="实现 Model"></a>实现 Model</h2><p>将数据操作逻辑放在实现了 DataProvider 协议的 Model 类中，该类只暴露相关方法给 View Controller，从而实现 Model 与 View 的分离，达成 MVC 的结构。</p>
+<p>需要注意的是，Model 类只保留一个 tableView 实例的弱引用，确保 View Controller 之与 Model 之间不会出现循环引用的情况。同时要确保对数据进行增改删之后尽快调用 <code>tableView.reaload()</code> 或相关方法刷新视图，防止 UI 与数据不一致的情况。</p>
+<p>涉及从网络获取数据时，将网络调用相关方法打包为一个类，且使用单例。这样做的好处在于可以方便的进行缓存设置，当网络调用涉及到用户验证和授权时，可以在应用初始化过程进行登录检查并设置好网络层，进行网络请求时检查类中相关变量的状态即可调整方法的行为。</p>
+<p>在进行方法回调时，可将处理数据的过程放在后台线程并行处理，但将处理完毕后需将回调返回给主线程，否在在 Model 中进行视图刷新时不能确保数据被及时刷新，造成应用崩溃。在回调时，可利用 Swift 函数式编程的特性，将错误打包逐层传递，这里不展开介绍，可参考此<a href="http://alisoftware.github.io/swift/async/error/2016/02/06/async-errors/" target="_blank" rel="external">链接</a>。</p>
+<h2 id="u5355_u5143_u6D4B_u8BD5"><a href="#u5355_u5143_u6D4B_u8BD5" class="headerlink" title="单元测试"></a>单元测试</h2><p>将 Model 与 DataSource 声明为 View Controller 的强引用类型的实例变量，在 <code>viewDidLoad()</code> 方法中对这两个变量进行初始化，再将 <code>tableView.dataSource</code> 设置为分离好的 DataSource 就完成了 View Controller 的设置。同样的，在单元测试中创建简单的数据就可复用相关代码，之后在 Storyboard 内创建 <code>UITableViewController</code> 和 <code>UITableViewCell</code> 的 Mock 对象，更新数据并检查相应的 Cell 内的值是否被正确设置，以确保相关代码的正确性，减轻后期维护时的负担。</p>
+<h2 id="u5904_u7406_View__u4E0E_View_Controller__u5173_u7CFB"><a href="#u5904_u7406_View__u4E0E_View_Controller__u5173_u7CFB" class="headerlink" title="处理 View 与 View Controller 关系"></a>处理 View 与 View Controller 关系</h2><p>实现了 DataSource 的分离后，虽然类间的耦合度下降，但同时也会出现一些问题。例如：如何将 View（UITableViewCell）内的 delegate 设置为 View Controller，以处理 Cell 内的 button 被按下之类的事件（View 不是 Controller，此类事件不应由 View 处理）。由于 DataSource（Model 同）不拥有 View Controller 的引用，因此这里使用 View Controller 的 <code>tableView(_:, willDisplay:, forRowAt:)</code> 方法来检查 Cell 的类型并设置 delegate 的方法，同样的，该 delegate 应是 View 指向 View Controller 的弱引用，防止循环引用造成内存泄漏。</p>
+<h2 id="TableView__u5185_u591A_u79CD_Section__u7684_u5904_u7406"><a href="#TableView__u5185_u591A_u79CD_Section__u7684_u5904_u7406" class="headerlink" title="TableView 内多种 Section 的处理"></a>TableView 内多种 Section 的处理</h2><p>由于在 DataSource 中规范了 Model 与 Cell 的关联值类型，因此处理一个含有多种 section 的 TableView 变得几乎不可能。好在 Swift 提供了 enum 的关联值类型，将关联值类型设置为包含不同关联类型的自定 enum，将不同的 Cell 继承于一个关联类型匹配的父类，然后重载其 <code>configure(with:)</code> 方法并取出相应关联值。</p>
+<p>以上简要说明了轻量 UITableViewController 的构建，类似的方式实现 CollectionViewDataSource 即可完成轻量 UICollectionViewContoller 的构建。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://mainasuk.com/2016/07/28/LightController/" data-id="cir5qpndt00000amuegl6k7cx" class="article-share-link">Share</a>
+      
+        <a href="http://mainasuk.com/2016/07/28/LightController/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/iOS/">iOS</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2016/01/21/OpenGLTexture/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">OpenGL 纹理漫谈</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Math/">Math</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OpenGL/">OpenGL</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/iOS/">iOS</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/汇编/">汇编</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/计算机/">计算机</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Linux/" style="font-size: 10px;">Linux</a> <a href="/tags/Math/" style="font-size: 10px;">Math</a> <a href="/tags/OpenGL/" style="font-size: 20px;">OpenGL</a> <a href="/tags/iOS/" style="font-size: 10px;">iOS</a> <a href="/tags/汇编/" style="font-size: 10px;">汇编</a> <a href="/tags/计算机/" style="font-size: 10px;">计算机</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">七月 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">一月 2016</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">十二月 2015</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recents</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2016/07/28/LightController/">轻量 View Controller 实践</a>
+          </li>
+        
+          <li>
+            <a href="/2016/01/21/OpenGLTexture/">OpenGL 纹理漫谈</a>
+          </li>
+        
+          <li>
+            <a href="/2016/01/18/OpenGLPicking/">OpenGL 鼠标拾取漫谈</a>
+          </li>
+        
+          <li>
+            <a href="/2016/01/13/HypercubeVisualize/">可视化超立方体</a>
+          </li>
+        
+          <li>
+            <a href="/2015/12/25/Linux-assemble-and-Compute/">Linux 汇编初体验与计算的目的</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2016 MainasuK<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+<script>
+  var disqus_shortname = 'belowthehorizon';
+  
+  var disqus_url = 'http://mainasuk.com/2016/07/28/LightController/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="//ajax.useso.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css" type="text/css">
+  <script src="/fancybox/jquery.fancybox.pack.js" type="text/javascript"></script>
+
+
+<script src="/js/script.js" type="text/javascript"></script>
+
+  </div>
+</body>
+</html>

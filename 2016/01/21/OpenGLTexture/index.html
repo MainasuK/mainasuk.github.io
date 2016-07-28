@@ -21,7 +21,7 @@
 <meta property="og:image" content="http://ww2.sinaimg.cn/large/72d7aee5jw1f071oplnt2j20sg0lcq6k.jpg">
 <meta property="og:image" content="http://ww2.sinaimg.cn/large/72d7aee5jw1f071xv88qvj218n0kegs5.jpg">
 <meta property="og:image" content="http://ww3.sinaimg.cn/large/72d7aee5jw1f075utlh0ij20x00ke0v0.jpg">
-<meta property="og:updated_time" content="2016-01-21T08:05:57.000Z">
+<meta property="og:updated_time" content="2016-01-25T15:43:29.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="OpenGL 纹理漫谈">
 <meta name="twitter:description" content="2D 纹理映射纹理映射一般是在图形的坐标值已经计算完成时附加在顶点信息上的，而非对纹理进行透视、变换再显示。下面逐步介绍如何在 OpenGL 中开启纹理映射，它的顺序有先后但并不唯一，若是想颠倒一下顺序也不妨试试看会有什么效果🙃️
@@ -169,12 +169,12 @@ ga('send', 'pageview');
 <p>我们只要定义 1D 的纹理，再通过 <code>glTexGeni</code> 函数将纹理坐标自动生成出来就可以了。</p>
 <h2 id="u751F_u6210_u7EB9_u7406-1"><a href="#u751F_u6210_u7EB9_u7406-1" class="headerlink" title="生成纹理"></a>生成纹理</h2><p>使用 RGB 色彩空间创建从红到蓝的渐变并不方便，我们使用 <a href="https://zh.wikipedia.org/wiki/HSL%E5%92%8CHSV%E8%89%B2%E5%BD%A9%E7%A9%BA%E9%97%B4" target="_blank" rel="external">HSV 色彩空间</a>，喜欢数码绘图的朋友一定会很熟悉 HSV 拾色器。设置饱和度（S）和亮度（V）都为 1，将色度（H）由 0 度（红色）变换到 240 度（蓝色）。将这一变化序列转化为 RGB 存储并生成 1D 纹理。这里不再介绍如何 RGB 与 HSV 的转换。创建纹理数据的一般代码如下。</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">makeRamp</span><span class="params">(<span class="keyword">void</span>)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> i;</span><br><span class="line">    <span class="keyword">float</span> h, s, v, r, g, b;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//  0 to 240 ramp, total 256 steps</span></span><br><span class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; <span class="number">256</span>; i++) &#123;</span><br><span class="line">        h = (<span class="keyword">float</span>)i * <span class="number">240.0</span> / <span class="number">255.0</span>;</span><br><span class="line">        s = <span class="number">1.0</span>;</span><br><span class="line">        v = <span class="number">1.0</span>;</span><br><span class="line">        convertHSV2RGB(h, s, v, &amp;r, &amp;g, &amp;b);</span><br><span class="line">        ramp[i][<span class="number">0</span>] = r;</span><br><span class="line">        ramp[i][<span class="number">1</span>] = g;</span><br><span class="line">        ramp[i][<span class="number">2</span>] = b;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="u5B9A_u4E49_u7EB9_u7406-1"><a href="#u5B9A_u4E49_u7EB9_u7406-1" class="headerlink" title="定义纹理"></a>定义纹理</h2><p>这里我们的到了一个长度为 256 的 1D 纹理数据。与 2D 纹理定义类似，接下来开启 1D 纹理映射，调整纹理参数，定义一个 1D 纹理。在开启 1D 纹理映射之后，我们调用 <code>glEnable(GL_TEXTURE_GEN_S)</code> 开启纹理 S 方向上的坐标生成。</p>
+<h2 id="u5B9A_u4E49_u7EB9_u7406-1"><a href="#u5B9A_u4E49_u7EB9_u7406-1" class="headerlink" title="定义纹理"></a>定义纹理</h2><p>这里我们得到了一个长度为 256 的 1D 纹理数据。与 2D 纹理定义类似，接下来开启 1D 纹理映射，调整纹理参数，定义一个 1D 纹理。在开启 1D 纹理映射之后，我们调用 <code>glEnable(GL_TEXTURE_GEN_S)</code> 开启纹理 S 方向上的坐标生成。</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">glEnable(GL_TEXTURE_1D);</span><br><span class="line">glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);</span><br><span class="line">glTexParameterf(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP);</span><br><span class="line">glTexParameterf(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);</span><br><span class="line">glTexParameterf(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);</span><br><span class="line">glTexImage1D(GL_TEXTURE_1D, <span class="number">0</span>, GL_RGB8, <span class="number">256</span>, <span class="number">0</span>, GL_RGB, GL_FLOAT, ramp);</span><br></pre></td></tr></table></figure>
 <h2 id="u751F_u6210_u7EB9_u7406-2"><a href="#u751F_u6210_u7EB9_u7406-2" class="headerlink" title="生成纹理"></a>生成纹理</h2><p>我们使用眼空间来生成纹理，函数调用的顺序不唯一，但要确保 <code>glTexGenfv</code> 在 <code>gluLookAt</code> 之前调用，代码如下。</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">D1 = <span class="number">5.0</span>;</span><br><span class="line">D2 = <span class="number">15.0</span>;</span><br><span class="line">texParms[<span class="number">0</span>] = texParms[<span class="number">1</span>] = <span class="number">0.0</span>;</span><br><span class="line">texParms[<span class="number">2</span>] = -<span class="number">1.0</span> / (D2-D1);</span><br><span class="line">texParms[<span class="number">3</span>] = -D1/(D2-D1);</span><br><span class="line"></span><br><span class="line">glEnable(GL_TEXTURE_1D);</span><br><span class="line">glTexGenfv(GL_S, GL_EYE_PLANE, texParms);</span><br><span class="line">glBindTexture(GL_TEXTURE_1D, texName);</span><br><span class="line">glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);</span><br><span class="line"></span><br><span class="line"><span class="comment">//          eye point   center of view      up</span></span><br><span class="line">gluLookAt(camX, camY, camZ, <span class="number">0.0</span>, <span class="number">0.0</span>, <span class="number">0.0</span>, <span class="number">0.0</span>, <span class="number">1.0</span>, <span class="number">0.0</span>);</span><br><span class="line"></span><br><span class="line">glutSolidTeapot(<span class="number">5.0</span>);</span><br><span class="line">glDisable(GL_TEXTURE_1D);</span><br></pre></td></tr></table></figure>
-<p>前 5 行代码设置了四元数组，将其记作 A B C D。</p>
-<p>在眼坐标空间中生产纹理坐标时，系统在纹理坐标 S 方向进行这样的计算：<code>s = A*x + B*y + C*z + D</code>，OpenGL 的眼坐标空间向场景远处的方向为 +z 方向，将 A 和 B 设置为 0，即 x、y 方向不影响纹理坐标，只有 z 方向影响。观察 C 和 D 的计算方式，它是一个一元一次方程，斜率小于 1，s 值随着 z 的减小而增大。有点晕……冷静一下，OpenGL 的眼坐标系为左手坐标系，(0, 0, -1) 指向目标点，于是随着 z 值增大，茶壶的颜色也就越发蓝。</p>
+<p>前 5 行代码设置了四元数组，将数组元素分别记作 A B C D。</p>
+<p>在眼坐标空间中生产纹理坐标时，系统在纹理坐标 S 方向进行这样的计算：<code>s = A*x + B*y + C*z + D</code>，OpenGL 的眼坐标空间向场景远处的方向为 +z 方向，将 A 和 B 设置为 0，即 x、y 方向不影响纹理坐标，只有 z 方向影响。观察 C 和 D 的计算方式，可知方程 s 是一个关于 z 的一元一次方程，斜率小于 0，s 值随着 z 的减小而增大。有点晕……冷静一下，OpenGL 的眼坐标系为左手坐标系，(0, 0, -1) 指向目标点，于是随着 z 值增大，茶壶的颜色也就越发蓝。详细资料请参考下面最后一个引用链接。</p>
 <p>相关资料：</p>
 <ul>
 <li><a href="https://open.gl/textures" target="_blank" rel="external">Textures objects and parameters</a></li>
@@ -199,7 +199,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://mainasuk.com/2016/01/21/OpenGLTexture/" data-id="cijmya6nc0000i9muagbo9gnb" class="article-share-link">Share</a>
+      <a data-url="http://mainasuk.com/2016/01/21/OpenGLTexture/" data-id="cir5qom580000zqmuxxz70nh6" class="article-share-link">Share</a>
       
         <a href="http://mainasuk.com/2016/01/21/OpenGLTexture/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -211,6 +211,15 @@ ga('send', 'pageview');
   
     
 <nav id="article-nav">
+  
+    <a href="/2016/07/28/LightController/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          轻量 View Controller 实践
+        
+      </div>
+    </a>
   
   
     <a href="/2016/01/18/OpenGLPicking/" id="article-nav-older" class="article-nav-link-wrap">
@@ -239,7 +248,7 @@ ga('send', 'pageview');
   <div class="widget-wrap">
     <h3 class="widget-title">Tags</h3>
     <div class="widget">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Math/">Math</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OpenGL/">OpenGL</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/汇编/">汇编</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/计算机/">计算机</a><span class="tag-list-count">1</span></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Math/">Math</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OpenGL/">OpenGL</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/iOS/">iOS</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/汇编/">汇编</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/计算机/">计算机</a><span class="tag-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -248,7 +257,7 @@ ga('send', 'pageview');
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/Linux/" style="font-size: 10px;">Linux</a> <a href="/tags/Math/" style="font-size: 10px;">Math</a> <a href="/tags/OpenGL/" style="font-size: 20px;">OpenGL</a> <a href="/tags/汇编/" style="font-size: 10px;">汇编</a> <a href="/tags/计算机/" style="font-size: 10px;">计算机</a>
+      <a href="/tags/Linux/" style="font-size: 10px;">Linux</a> <a href="/tags/Math/" style="font-size: 10px;">Math</a> <a href="/tags/OpenGL/" style="font-size: 20px;">OpenGL</a> <a href="/tags/iOS/" style="font-size: 10px;">iOS</a> <a href="/tags/汇编/" style="font-size: 10px;">汇编</a> <a href="/tags/计算机/" style="font-size: 10px;">计算机</a>
     </div>
   </div>
 
@@ -257,7 +266,7 @@ ga('send', 'pageview');
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">一月 2016</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">十二月 2015</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">七月 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">一月 2016</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">十二月 2015</a><span class="archive-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -267,6 +276,10 @@ ga('send', 'pageview');
     <h3 class="widget-title">Recents</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2016/07/28/LightController/">轻量 View Controller 实践</a>
+          </li>
         
           <li>
             <a href="/2016/01/21/OpenGLTexture/">OpenGL 纹理漫谈</a>

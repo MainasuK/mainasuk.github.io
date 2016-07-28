@@ -75,6 +75,57 @@ ga('send', 'pageview');
       <div class="outer">
         <section id="main">
   
+    <article id="post-LightController" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/07/28/LightController/" class="article-date">
+  <time datetime="2016-07-28T04:00:00.000Z" itemprop="datePublished">2016-07-28</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/07/28/LightController/">轻量 View Controller 实践</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>MVC 是 iOS 应用开发时常用的一种架构，使用这种架构的目的之一便是为了写出后期可维护的代码。去年我使用 Swift 1.2 编写了我的第一个 iOS 应用，我称它为 Percolator，其中包含了我对 MVC 初步实践。由于自己初学应用开发与设计，在后期维护时发现程序整体结构过于耦合，有些地方违反了 MVC 的设计要求，并且滥用单例，也没有考虑到循环引用等等问题。今年夏天 Xcode8 beta + Swift3.0 beta 放出，利用假期这段时间完成了 Percolator 的重构，这篇手记记录了设计良好架构的一些实践，由于水平有限，若有不正确的地方还望批评指正。</p>
+<h1 id="u8F7B_u91CF_u5316_u7684_View_Controller"><a href="#u8F7B_u91CF_u5316_u7684_View_Controller" class="headerlink" title="轻量化的 View Controller"></a>轻量化的 View Controller</h1><h2 id="u5206_u79BB_Data_Source"><a href="#u5206_u79BB_Data_Source" class="headerlink" title="分离 Data Source"></a>分离 Data Source</h2><p>著名博客 objc.io 的第一篇期刊中介绍了如何对 View Controller 进行瘦身，提出了将 <code>UITableView</code> 或 <code>UICollectionView</code> 的 Data Source 部分从 View Controller 中单独分离出去的实践，并且提供了<a href="https://github.com/objcio/issue-1-lighter-view-controllers">示例代码</a>。不过示例代码非常简单，需要进一步阐述清楚这个概念。</p>
+<p>在 Percolator 进行重构时我反复测试，最终得出了一种遵循此概念且易于实现和扩展的结构： </p>
+<p><img src="http://ww4.sinaimg.cn/large/72d7aee5jw1f69dgq4x64j20e20fpjs6.jpg" alt="分离 Data Source"></p>
+<p>箭尾对象拥有箭头所指对象，实线为强引用，虚线为弱引用，Controller 强引用 DataSource 与 Model 实例，这里没有画出。在实现时，我们将 Model 实现一个自定 DataProvider 协议，代码如下：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">protocol</span> <span class="title">DataProvider</span>: <span class="title">class</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">    associatedtype <span class="type">ItemType</span></span><br><span class="line">    </span><br><span class="line">    <span class="func"><span class="keyword">func</span> <span class="title">numberOfSections</span><span class="params">()</span></span> -&gt; <span class="type">Int</span></span><br><span class="line">    <span class="func"><span class="keyword">func</span> <span class="title">numberOfItems</span><span class="params">(<span class="keyword">in</span> section: Int)</span></span> -&gt; <span class="type">Int</span></span><br><span class="line">    </span><br><span class="line">    <span class="func"><span class="keyword">func</span> <span class="title">item</span><span class="params">(at indexPath: IndexPath)</span></span> -&gt; <span class="type">ItemType</span></span><br><span class="line">    <span class="func"><span class="keyword">func</span> <span class="title">identifier</span><span class="params">(at indexPath: IndexPath)</span></span> -&gt; <span class="type">String</span></span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>之后我们创建一个支援泛型的类 TableViewDataSource（一个包含成员 model 的自定类 DataSource 的子类），并利用 DataProvider 所提供的方法实现 <code>UITableViewDataSource</code> 协议，其头部声明如下：<br>
+        
+          <p class="article-more-link">
+            <a href="/2016/07/28/LightController/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://mainasuk.com/2016/07/28/LightController/" data-id="cir5qpndt00000amuegl6k7cx" class="article-share-link">Share</a>
+      
+        <a href="http://mainasuk.com/2016/07/28/LightController/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/iOS/">iOS</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-OpenGLTexture" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2016/01/21/OpenGLTexture/" class="article-date">
@@ -112,7 +163,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://mainasuk.com/2016/01/21/OpenGLTexture/" data-id="cijmya6nc0000i9muagbo9gnb" class="article-share-link">Share</a>
+      <a data-url="http://mainasuk.com/2016/01/21/OpenGLTexture/" data-id="cir5qom580000zqmuxxz70nh6" class="article-share-link">Share</a>
       
         <a href="http://mainasuk.com/2016/01/21/OpenGLTexture/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -165,7 +216,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://mainasuk.com/2016/01/18/OpenGLPicking/" data-id="cijjve2tr000073mumfg9et8p" class="article-share-link">Share</a>
+      <a data-url="http://mainasuk.com/2016/01/18/OpenGLPicking/" data-id="cir5qom5p0003zqmuvzv3p3pa" class="article-share-link">Share</a>
       
         <a href="http://mainasuk.com/2016/01/18/OpenGLPicking/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -211,7 +262,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://mainasuk.com/2016/01/13/HypercubeVisualize/" data-id="cijckxq930007ndmua5yrbuxw" class="article-share-link">Share</a>
+      <a data-url="http://mainasuk.com/2016/01/13/HypercubeVisualize/" data-id="cir5qom64000czqmudu5gdker" class="article-share-link">Share</a>
       
         <a href="http://mainasuk.com/2016/01/13/HypercubeVisualize/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -258,7 +309,7 @@ ga('send', 'pageview');
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://mainasuk.com/2015/12/25/Linux-assemble-and-Compute/" data-id="cijckxq8o0000ndmu3ylfr6ms" class="article-share-link">Share</a>
+      <a data-url="http://mainasuk.com/2015/12/25/Linux-assemble-and-Compute/" data-id="cir5qom5z0005zqmuwkn8w6ya" class="article-share-link">Share</a>
       
         <a href="http://mainasuk.com/2015/12/25/Linux-assemble-and-Compute/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -283,7 +334,7 @@ ga('send', 'pageview');
   <div class="widget-wrap">
     <h3 class="widget-title">Tags</h3>
     <div class="widget">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Math/">Math</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OpenGL/">OpenGL</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/汇编/">汇编</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/计算机/">计算机</a><span class="tag-list-count">1</span></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Math/">Math</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OpenGL/">OpenGL</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/iOS/">iOS</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/汇编/">汇编</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/计算机/">计算机</a><span class="tag-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -292,7 +343,7 @@ ga('send', 'pageview');
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/Linux/" style="font-size: 10px;">Linux</a> <a href="/tags/Math/" style="font-size: 10px;">Math</a> <a href="/tags/OpenGL/" style="font-size: 20px;">OpenGL</a> <a href="/tags/汇编/" style="font-size: 10px;">汇编</a> <a href="/tags/计算机/" style="font-size: 10px;">计算机</a>
+      <a href="/tags/Linux/" style="font-size: 10px;">Linux</a> <a href="/tags/Math/" style="font-size: 10px;">Math</a> <a href="/tags/OpenGL/" style="font-size: 20px;">OpenGL</a> <a href="/tags/iOS/" style="font-size: 10px;">iOS</a> <a href="/tags/汇编/" style="font-size: 10px;">汇编</a> <a href="/tags/计算机/" style="font-size: 10px;">计算机</a>
     </div>
   </div>
 
@@ -301,7 +352,7 @@ ga('send', 'pageview');
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">一月 2016</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">十二月 2015</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">七月 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">一月 2016</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">十二月 2015</a><span class="archive-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -311,6 +362,10 @@ ga('send', 'pageview');
     <h3 class="widget-title">Recents</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2016/07/28/LightController/">轻量 View Controller 实践</a>
+          </li>
         
           <li>
             <a href="/2016/01/21/OpenGLTexture/">OpenGL 纹理漫谈</a>
